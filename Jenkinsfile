@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Docker_creds')
-        IMAGE_NAME = "yash36638/multi_app_django:latest"
+        DOCKERHUB_CREDENTIALS = credentials('Docker_creds') 
+        IMAGE_NAME = "jainym/jenkins:latest" 
     }
     stages {
         stage('Checkout') {
@@ -13,7 +13,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("${env.jenkins-python}", "-f Dockerfile .")
+                    dockerImage = docker.build("${env.IMAGE_NAME}", "-f Dockerfile .") 
                 }
             }
         }
