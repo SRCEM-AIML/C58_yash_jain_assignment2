@@ -14,6 +14,8 @@ pipeline {
             steps {
                 script {
                    def dockerImage = docker.build("${env.IMAGE_NAME}", "-f Dockerfile .") 
+                   env.DOCKER_IMAGE_ID = dockerImage.id
+
                 }
             }
         }
@@ -21,6 +23,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/',DOCKERHUB_CREDENTIALS) {
+                        def dockerImage = docker.image(env.DOCKER_IMAGE_ID)
                         dockerImage.push('latest')
                     }
                 }
