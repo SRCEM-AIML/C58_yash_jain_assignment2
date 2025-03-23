@@ -20,7 +20,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', credentials('Docker_creds')) {
+                    docker.withRegistry('https://index.docker.io/v1/', 'Docker_creds') {
                         dockerImage.push('latest')
                     }
                 }
