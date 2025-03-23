@@ -1,57 +1,30 @@
-// Docker file
-// FROM jenkins/jenkins:lts
-
-// USER root
-// RUN apt-get update && apt-get install -y python3 python3-venv
-
-// USER jenkins
 pipeline {
-    agent {
-        docker {
-            image 'jenkins/jenkins:lts' // Specify the Docker image to use
-        }
+    agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_creds')
+        IMAGE_NAME = "yash36638/multi_app_django:latest"
     }
-
     stages {
         stage('Checkout') {
             steps {
-                // Clone the repository
-                git url: 'https://github.com/YASH36638/Multi_app_django.git'
+                git url: 'https://github.com/YASH36638/Multi_app_django.git', branch: 'main'
             }
         }
-
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                // Placeholder for build commands
-                sh 'echo "Building the application..."'
+                script {
+                    dockerImage = docker.build("${env.jenkins-python}", "-f Dockerfile .")
+                }
             }
         }
-
-        stage('Test') {
+        stage('Push Docker Image') {
             steps {
-                // Placeholder for test commands
-                sh 'echo "Running tests..."'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        dockerImage.push()
+                    }
+                }
             }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Placeholder for deployment commands
-                sh 'echo "Deploying application..."'
-            }
-        }
-    }
-
-    post {
-        always {
-            // Cleanup or notifications can go here
-            sh 'echo "Pipeline completed!"'
-        }
-        success {
-            echo 'Pipeline finished successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
