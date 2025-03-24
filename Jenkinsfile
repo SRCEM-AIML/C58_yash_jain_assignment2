@@ -1,16 +1,25 @@
 pipeline {
     agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Docker_creds') 
+        IMAGE_NAME = "jainym/jenkins:latest" 
+    }
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/YASH36638/Multi_app_django.git' 
+                git url: 'https://github.com/YASH36638/Multi_app_django.git', branch: 'main'
             }
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t jainym/jenkins .'
+                script {
+                   def dockerImage = docker.build("${env.IMAGE_NAME}", "-f Dockerfile .") 
+                   env.DOCKER_IMAGE_ID = dockerImage.id
+
+                }
             }
         }
+
         stage('Push to Docker Hub') {
             steps {
                 withDockerRegistry([credentialsId: 'Docker_creds', url: 'https://index.docker.io/v1/']) {
